@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>GBN</title>
+	<meta name="author" content="GBN" />
+	<meta name="description" content="Fuck You" />
+	<meta name="keywords"  content="GBN" />
+	<meta name="Resource-type" content="Document" />
+
+	<!--[if IE]>
+		<script type="text/javascript">
+			 var console = { log: function() {} };
+		</script>
+	<![endif]-->
+
+	<link rel="stylesheet" type="text/css" href="base.css" />
+	<link rel="stylesheet" type="text/css" href="jquery-ui.min.css" />
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+
+
+	<script src="https://www.gstatic.com/firebasejs/3.0.2/firebase.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css" />
+	<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.print.css" />
+
+	<style>
+		#logo {
+			width: 50%;
+			margin: 0 auto;
+			display: block;
+			padding: 40px;
+		}
+
+		#undergroundForever {
+			color: #fff;
+			font-size: 3.2em;
+			text-align: center;
+		}
+
+		#equipmentAndContact {
+			margin-top: 50px;
+			height: 410px;
+		}
+
+		.sectionRow {
+			width: 400px;
+			margin-left: 80px;
+			float: left;
+		}
+
+		#map {
+			margin-left: 20px;
+			margin-top: 20px;
+			height: 450px;
+			width: 450px;
+			float: left
+		}
+
+		#gate {
+			margin-left: 20px;
+			margin-top: 20px;
+			height: 450px;
+			width: 450px;
+			float: left;
+		}
+
+		.location {
+			height: 550px;
+		}
+
+		.sns-logo {
+			width: 48px;
+			height: 48px;
+			display: block;
+			float: left;
+			margin-left: 4px;
+			margin-right: 4px
+		}
+
+
+    </style>
+
+	<script type="text/javascript">
+		// Initialize Firebase
+		var config = {
+		    apiKey: "AIzaSyCt8XaH9-kzFDGAnWfWBaQj0SeXYRklciI",
+		    databaseURL: "https://gbn-livehouse.firebaseio.com"
+		};
+		firebase.initializeApp(config);
+
+		$(document).ready(function() {
+			var calendar = $('#calendar');
+			var calendarHeaderTitle = $('#calendarHeaderTitle');
+
+			firebase.database().ref('calendar').on('child_added', function(data) {
+				var events = [];
+				events.push(data.val());
+
+				calendar.fullCalendar( 'addEventSource', events );
+			});
+
+			calendar.fullCalendar({
+				header: {
+					left: '',
+					center: '',
+					right: ''
+				},
+				navLinks: false, // can click day/week names to navigate views
+				editable: false,
+				eventLimit: false, // allow "more" link when too many events
+				eventClick: function(event) {
+					if (event.url) {
+						window.open(event.url, '_blank');
+
+						return false;
+					}
+				}
+			});
+			
+			$("#buttonPrev").click(function() {
+				calendar.fullCalendar('prev');
+
+				var moment = $('#calendar').fullCalendar('getDate');
+				calendarHeaderTitle.html(moment.format("YYYY MMM"));
+			});
+
+			$("#buttonNext").click(function() {
+				calendar.fullCalendar('next');
+
+				var moment = $('#calendar').fullCalendar('getDate');
+				calendarHeaderTitle.html(moment.format("YYYY MMM"));
+			});
+
+			var moment = $('#calendar').fullCalendar('getDate');
+			calendarHeaderTitle.html(moment.format("YYYY MMM"));
+		});
+
+		function initMap() {
+
+			var gbn = {lat: 37.513706, lng: 126.896547};
+			var map = new google.maps.Map(document.getElementById('map'), {
+				zoom: 15,
+				center: gbn
+			});
+
+			var marker = new google.maps.Marker({
+				position: gbn,
+				map: map
+			});
+		}
+	</script>
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyChcZ1p35vLO7V9sXyo5Pw93ULj3MHZTII&callback=initMap"></script>
+</head>
+<body>
+
+<div class="wrapBackground">
+<div class="wrap">
+	<div class="section">
+		<img src="image/logo.png" id="logo" />
+		<img src="image/top.jpeg" />
+		<h3 id="undergroundForever">UNDERGROUND FOREVER</h3>
+	</div>
+
+	<div class="section">
+		<h2>Schedule</h2>
+		<div id="calendarHeader">
+			<h3 class="calendarHeaderButton" id="buttonPrev"><</h3>
+			<h3 id="calendarHeaderTitle"></h3>
+			<h3 class="calendarHeaderButton" id="buttonNext">></h3>
+		</div>
+		<div id='calendar'></div>
+	</div>
+
+	<div class="section" id="equipmentAndContact">
+		<div class="sectionRow">
+			<h2>Equipment</h2>
+			<p>
+				CONSOL SYSTEM<br/>
+				Behringer SX2442<br/>
+				POWER AMP x3<br/>
+				Main Speaker x 2<br/>
+				Ataka - Aip-15 x2<br/>
+				Ataka - Dhw-312 x2 (모니터스피커)<br/>
+				SM57 X 6 / SM58 X 4<br/><br/>
+				
+				DRUM<br/>
+				Tama Stage Star + 1more cymbal stand<br/>
+				Pearl Eliminator Pedal<br/>
+				Pearl Eliminator Twin Pedal<br/><br/>
+
+				GUITAR & BASS<br/>
+				Marshall JCM 2000 DSL (Marshall MF400 4x12 Cab)<br/>
+				Peavy 6505+ (Marshall 1960 4x12 Cab)<br/>
+				Marshall Valvestate 8100<br/>
+				Behringer BVT 4500h (LANEY BASS CAB)<br/>
+				Bugera 6262 120<br/>
+			</p>
+		</div>
+
+		<div class="sectionRow">
+			<h2>Contact</h2>
+			<p>
+				토요일 - 40만원<br/>
+				금요일, 일요일 - 35만원<br/>
+				평일 - 30만원<br/><br/>
+
+				이용시간 총 7시간 (리허설+공연)<br/><br/>
+
+				추가 시간/요금 - 협의<br/>
+				010-9182-0749 / leeyuing@gmail.com 
+			</p>
+		</div>
+	</div>
+
+	<div class="section location">
+		<h2>Location</h2>
+		<div id="map"></div>
+		<img id="gate" src="image/gate.jpg" />
+	</div>
+</div>
+</div>
+
+<div class="footer">
+	<div style="width: 168px; margin: 10px auto;">
+		<a href="https://www.facebook.com/gbnlivehouse" target="_blank"><img src="image/facebook-logo.png" class="sns-logo" /></a>
+		<a href="https://twitter.com/leeyuing" target="_blank"><img src="image/twitter-logo.png" class="sns-logo" /></a>
+		<a href="https://www.instagram.com/GBNLIVEHOUSE/" target="_blank"><img src="image/insta-logo.png" class="sns-logo" /></a>
+	</div>
+</div>
+
+
+</body>
+</html>

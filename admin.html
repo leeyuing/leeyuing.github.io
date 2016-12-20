@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>GBN</title>
+	<meta name="author" content="GBN" />
+	<meta name="description" content="Fuck You" />
+	<meta name="keywords"  content="GBN" />
+	<meta name="Resource-type" content="Document" />
+
+	<!--[if IE]>
+		<script type="text/javascript">
+			 var console = { log: function() {} };
+		</script>
+	<![endif]-->
+
+	<link rel="stylesheet" type="text/css" href="base.css" />
+	<link rel="stylesheet" type="text/css" href="jquery-ui.min.css" />
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+
+
+	<script src="https://www.gstatic.com/firebasejs/3.0.2/firebase.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.css" />
+	<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.print.css" />
+
+	<style>
+		#calenderSection {
+			padding-bottom: 20px;
+		}
+
+		#buttonLogout {
+			float: right;
+		}
+
+    </style>
+
+	<script type="text/javascript">
+		// Initialize Firebase
+		var config = {
+		    apiKey: "AIzaSyCt8XaH9-kzFDGAnWfWBaQj0SeXYRklciI",
+		    authDomain: "gbn-livehouse.firebaseapp.com",
+		    databaseURL: "https://gbn-livehouse.firebaseio.com"
+		};
+		firebase.initializeApp(config);
+
+		$(document).ready(function() {
+			$("#loginSection").hide();
+			$("#scheduleSection").hide();
+
+			var calendar = $('#calendar');
+			var calendarHeaderTitle = $('#calendarHeaderTitle');
+
+			firebase.database().ref('calendar').on('child_added', function(data) {
+				var events = [];
+				events.push(data.val());
+
+				calendar.fullCalendar( 'addEventSource', events );
+			});
+
+			firebase.auth().onAuthStateChanged(function(user) {
+				if (user) {
+					$("#loginSection").hide();
+					$("#scheduleSection").show();
+				} else {
+					$("#loginSection").show();
+					$("#scheduleSection").hide();
+				}
+			});
+
+			calendar.fullCalendar({
+				header: {
+					left: '',
+					center: '',
+					right: ''
+				},
+				navLinks: false, // can click day/week names to navigate views
+				editable: false,
+				eventLimit: false, // allow "more" link when too many events
+				eventClick: function(event) {
+					if (event.url) {
+						window.open(event.url, '_blank');
+
+						return false;
+					}
+				}
+		    });	
+
+			var inputEmail = $("#inputEmail");
+			var inputPassword = $("#inputPassword");
+
+			$("#buttonLogin").click(function() {
+				var email = inputEmail.val();
+				var password = inputPassword.val();
+
+				firebase.auth().signInWithEmailAndPassword(email, password).catch(function(error) {
+					// Handle Errors here.
+					var errorCode = error.code;
+					var errorMessage = error.message;
+
+					consoloe.log(errorCode + " " + errorMessage);
+				});
+
+				inputEmail.val("");
+				inputPassword.val("");
+			});
+
+			$("#buttonLogout").click(function() {
+				firebase.auth().signOut().then(function() {
+				}, function(error) {
+				});
+			});
+
+		    var inputTitle = $("#inputTitle");
+			var inputStart = $("#inputStart");
+			var inputEnd = $("#inputEnd");
+			var inputUrl = $("#inputUrl");
+
+			$("#buttonSubmit").click(function() {
+				var title = inputTitle.val();
+				var start = inputStart.val();
+				var end = inputEnd.val();
+				var url = inputUrl.val();
+
+				firebase.database().ref('calendar').push().set({
+					title: title,
+					start: start,
+					end: end,
+					url: url,
+					allDay: true
+				});
+
+				inputTitle.val("");
+				inputStart.val("");
+				inputEnd.val("");
+				inputUrl.val("");
+			});
+
+			$("#inputStart").datepicker();
+			$("#inputStart").datepicker("option", "dateFormat", "yy-mm-dd");
+			$("#inputEnd").datepicker();
+			$("#inputEnd").datepicker("option", "dateFormat", "yy-mm-dd");
+
+			$("#buttonPrev").click(function() {
+				calendar.fullCalendar('prev');
+
+				var moment = $('#calendar').fullCalendar('getDate');
+				calendarHeaderTitle.html(moment.format("YYYY MMM"));
+			});
+
+			$("#buttonNext").click(function() {
+				calendar.fullCalendar('next');
+
+				var moment = $('#calendar').fullCalendar('getDate');
+				calendarHeaderTitle.html(moment.format("YYYY MMM"));
+			});
+
+			var moment = $('#calendar').fullCalendar('getDate');
+			calendarHeaderTitle.html(moment.format("YYYY MMM"));
+		});
+	</script>
+</head>
+<body>
+<div class="wrapBackground">
+<div class="wrap">
+
+	<div class="section" id="loginSection">
+		<h2>Login</h2>
+		<p>
+			email: <input type="email" id="inputEmail" />
+			password: <input type="password" id="inputPassword" />
+			<input type="button" id="buttonLogin" value="login" />
+		</p>
+	</div>
+
+	<div class="section" id="scheduleSection">
+		<h3 id="buttonLogout">LOGOUT</h3>
+		<p>
+			title: <input type="text" id="inputTitle" />
+			start: <input type="text" id="inputStart" />
+			end: <input type="text" id="inputEnd" />
+			url: <input type="text" id="inputUrl" />
+			<input type="button" id="buttonSubmit" value="submit" />
+		</p>
+	</div>
+
+	<div class="section" id="calenderSection">
+		<h2>Schedule</h2>
+		<div id="calendarHeader">
+			<h3 class="calendarHeaderButton" id="buttonPrev"><</h3>
+			<h3 id="calendarHeaderTitle"></h3>
+			<h3 class="calendarHeaderButton" id="buttonNext">></h3>
+		</div>
+		<div id='calendar'></div>
+	</div>
+
+</div>
+</div>
+
+<div class="footer">
+
+	<div class="section">
+		<span style="display:block; float: left;">GBN</span>
+		<span style="display:block; float: right;">010-9182-0749 / leeyuing@gmail.com </span>
+	</div>
+</div>
+
+</body>
+</html>
